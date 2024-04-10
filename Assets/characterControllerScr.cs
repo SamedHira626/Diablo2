@@ -5,53 +5,57 @@ using UnityEngine.AI;
 
 public class characterControllerScr : MonoBehaviour
 {
-    public float moveSpeed = 5f;
-    //public GameObject player;
-    private Animator animator;
-    private Camera mainCamera;
+
+    public float moveSpeed = 3f; // Karakterin hareket hýzý
+    public Animator animator;
+    private Rigidbody rb;
+    private Vector3 targetPosition; // Hedef konum
+
 
     void Start()
     {
+        rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
-        mainCamera = Camera.main;
+        targetPosition = new Vector3( 0,0,0);
     }
 
     void Update()
     {
-        if (Input.GetMouseButton(0)) // Left mouse button
+        // Fare týklamasý algýlanýrsa
+        if (Input.GetMouseButtonDown(0))
         {
-           
-            Vector3 targetPosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-            /*targetPosition.y = player.transform.position.y;*/ // Keep z-coordinate same as player
-            targetPosition.y = 0;
-            Debug.Log("target pos" + targetPosition);
-
-            // Move towards the target position
-            //player.transform.position = Vector3.MoveTowards(player.transform.position, targetPosition, moveSpeed * Time.deltaTime);
-
-            transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
-
-            // Calculate movement direction and adjust animation speed
-            Vector3 movementDirection = targetPosition - transform.position;
-            float movementSpeed = movementDirection.magnitude;
-            //animator.SetFloat("Speed", movementSpeed);
             animator.SetBool("isWalking", true);
 
-            Debug.Log("walking..");
+            // Fare pozisyonunu 3D dünya koordinatlarýna dönüþtür
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
 
+            // Týklanan yere ulaþýp ulaþmadýðýný kontrol et
+            if (Physics.Raycast(ray, out hit))
+            {
+                // Karakterin hedef konumunu ayarla
+                targetPosition = new Vector3(hit.point.x, transform.position.y, hit.point.z);
 
-            //if (movementDirection != Vector3.zero)
-            //{
-            //    transform.rotation = Quaternion.LookRotation(Vector3.forward, movementDirection);
-
-            //}
+                // Karakterin yönünü hedef noktaya doðru döndür
+                transform.LookAt(targetPosition);
+            }
         }
+    }
+
+    void FixedUpdate()
+    {
+        // Hedef konuma doðru hareket et
+        if (Vector3.Distance(transform.position, targetPosition) > 0.1f)
+        {      
+            Vector3 movement = (targetPosition - transform.position).normalized * moveSpeed * Time.fixedDeltaTime;
+            rb.MovePosition(rb.position + movement);
+        }
+
         else
         {
-          
-            //animator.SetFloat("Speed", 0f);
             animator.SetBool("isWalking", false);
         }
     }
 }
+
 
