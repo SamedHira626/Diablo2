@@ -31,6 +31,7 @@ public class MPC : MonoBehaviour
     public float timeBetweenAttacks;
     private bool alreadyAttacked;
     public GameObject sphere;
+    public Animator animator;
 
     public float sightRange, attackRange;
     public bool playerInSightRange, playerInAttackRange;
@@ -38,7 +39,7 @@ public class MPC : MonoBehaviour
     private void Awake()
     {
         _agent = GetComponent<NavMeshAgent>();
-
+        animator = GetComponent<Animator>();
     }
 
     private void Update()
@@ -46,9 +47,32 @@ public class MPC : MonoBehaviour
         playerInSightRange = Physics.CheckSphere(transform.position, sightRange, player);
         playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, player);
 
-        if (!playerInSightRange && !playerInAttackRange) Patroling();
-        if (playerInSightRange && playerInAttackRange) Attack();
-        if (playerInSightRange && !playerInAttackRange) Chase();
+        animator.SetBool("isClosing", false);
+
+        if (!playerInSightRange && !playerInAttackRange)
+        {
+           Patroling();         
+        }
+
+        if (playerInSightRange && playerInAttackRange)
+        {
+           Attack();
+
+
+            if(CheckPraying())
+            {
+                animator.SetBool("isClosing", true);
+
+            }
+ 
+
+        }
+
+        if (playerInSightRange && !playerInAttackRange)
+        {
+            Chase();
+        }
+
     }
     void Patroling()
     {
@@ -60,7 +84,7 @@ public class MPC : MonoBehaviour
         if (destinationPointSet)
         {
             _agent.SetDestination(destinationPoint);
-            Debug.Log("Walking towards destination");
+            //Debug.Log("Walking towards destination");
         }
 
         Vector3 distanceToDestinationPoint = transform.position - destinationPoint;
@@ -81,7 +105,7 @@ public class MPC : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(destinationPoint, -transform.up, out hit, 1.0f, ground))
         {
-            Debug.Log("Destination point set false because it's not above the ground. Hit object name: " + hit.collider.gameObject.name);
+            //Debug.Log("Destination point set false because it's not above the ground. Hit object name: " + hit.collider.gameObject.name);
             destinationPointSet = false;
         }
         else
@@ -98,7 +122,7 @@ public class MPC : MonoBehaviour
     void Attack()
     {
         _agent.SetDestination(transform.position);
-        transform.LookAt(_player);
+        //transform.LookAt(_player);
         if (!alreadyAttacked)
         {
             alreadyAttacked = true;
@@ -111,6 +135,16 @@ public class MPC : MonoBehaviour
         alreadyAttacked = false;
     }
 
+    bool CheckPraying()
+    {
+        Vector3 dist = transform.position - _player.position;
+        Vector3 range = new Vector3(2, 0, 2);
 
+        if (dist.x < range.x || dist.z < range.z)
+        {
+            return true;
+        }
+        return false;
+    }
 
 }
