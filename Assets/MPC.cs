@@ -34,7 +34,7 @@ public class MPC : MonoBehaviour
     public Animator animator;
 
     public float sightRange, attackRange;
-    public bool playerInSightRange, playerInAttackRange;
+    public bool playerInSightRange;
 
     private void Awake()
     {
@@ -45,94 +45,78 @@ public class MPC : MonoBehaviour
     private void Update()
     {
         playerInSightRange = Physics.CheckSphere(transform.position, sightRange, player);
-        playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, player);
+
 
         animator.SetBool("isClosing", false);
 
-        if (!playerInSightRange && !playerInAttackRange)
+        if (!playerInSightRange)
         {
-           Patroling();         
+            // Patroling();         
         }
 
-        if (playerInSightRange && playerInAttackRange)
-        {
-           Attack();
-
-
-            if(CheckPraying())
-            {
-                animator.SetBool("isClosing", true);
-
-            }
- 
-
-        }
-
-        if (playerInSightRange && !playerInAttackRange)
+        if (playerInSightRange)
         {
             Chase();
+
+
         }
 
     }
     void Patroling()
     {
-        if (!destinationPointSet)
-        {
-            SearchWalkPoint();
-        }
+        //if (!destinationPointSet)
+        //{
+        //    SearchWalkPoint();
+        //}
 
-        if (destinationPointSet)
-        {
-            _agent.SetDestination(destinationPoint);
-            //Debug.Log("Walking towards destination");
-        }
+        //if (destinationPointSet)
+        //{
+        //    _agent.SetDestination(destinationPoint);
+        //    //Debug.Log("Walking towards destination");
+        //}
 
-        Vector3 distanceToDestinationPoint = transform.position - destinationPoint;
-        if (distanceToDestinationPoint.magnitude < 1.0f)
-        {
-            destinationPointSet = false;
-        }
+        //Vector3 distanceToDestinationPoint = transform.position - destinationPoint;
+        //if (distanceToDestinationPoint.magnitude < 1.0f)
+        //{
+        //    destinationPointSet = false;
+        //}
     }
 
     void SearchWalkPoint()
     {
-        float randomX = UnityEngine.Random.Range(-walkPointRange, walkPointRange);
-        float randomZ = UnityEngine.Random.Range(-walkPointRange, walkPointRange);
+        //float randomX = UnityEngine.Random.Range(-walkPointRange, walkPointRange);
+        //float randomZ = UnityEngine.Random.Range(-walkPointRange, walkPointRange);
 
-        destinationPoint = new Vector3(transform.position.x + randomX, transform.position.y, transform.position.z + randomZ);
+        //destinationPoint = new Vector3(transform.position.x + randomX, transform.position.y, transform.position.z + randomZ);
 
-        // Use Raycast to check if the destination point is above the ground
-        RaycastHit hit;
-        if (Physics.Raycast(destinationPoint, -transform.up, out hit, 1.0f, ground))
-        {
-            //Debug.Log("Destination point set false because it's not above the ground. Hit object name: " + hit.collider.gameObject.name);
-            destinationPointSet = false;
-        }
-        else
-        {
-            destinationPointSet = true;
-        }
+        //// Use Raycast to check if the destination point is above the ground
+        //RaycastHit hit;
+        //if (Physics.Raycast(destinationPoint, -transform.up, out hit, 1.0f, ground))
+        //{
+        //    //Debug.Log("Destination point set false because it's not above the ground. Hit object name: " + hit.collider.gameObject.name);
+        //    destinationPointSet = false;
+        //}
+        //else
+        //{
+        //    destinationPointSet = true;
+        //}
     }
 
     void Chase()
     {
-        _agent.SetDestination(_player.position);
 
-    }
-    void Attack()
-    {
-        _agent.SetDestination(transform.position);
-        //transform.LookAt(_player);
-        if (!alreadyAttacked)
+        transform.LookAt(_player);
+
+        if (CheckPraying())
         {
-            alreadyAttacked = true;
+            animator.SetBool("isClosing", true);
         }
 
-    }
+        else
+        {
+            // _agent.SetDestination(_player.position);
+        }
 
-    void ResetAttack()
-    {
-        alreadyAttacked = false;
     }
 
     bool CheckPraying()

@@ -8,6 +8,7 @@ public class characterControllerScr : MonoBehaviour
 
     public float moveSpeed = 3f; // Karakterin hareket hýzý
     private Animator animator;
+    private Animator animatorEnemy;
     private Rigidbody rb;
     private Vector3 targetPosition; // Hedef konum
 
@@ -34,15 +35,18 @@ public class characterControllerScr : MonoBehaviour
             if (Physics.Raycast(ray, out hit))
             {
                 // Karakterin hedef konumunu ayarla
-                targetPosition = new Vector3(hit.point.x, transform.position.y, hit.point.z);
+                
 
                 // Karakterin yönünü hedef noktaya doðru döndür
-                transform.LookAt(targetPosition);
+                
 
                 Vector3 hitObjectPosition = hit.collider.gameObject.transform.position;
-                Debug.Log(hit);
-                if (hit.collider.CompareTag("enemy") /*&& CheckClosing(hitObjectPosition)*/)
+
+                Debug.Log(hit.collider.gameObject.name);
+
+                if (hit.collider.gameObject.name == "enemy" && CheckClosing(hitObjectPosition))
                 {
+                    //animator2 = hit.collider.gameObject.GetComponent<Animator>();
                     animator.SetBool("hitting1", true);
                     Debug.Log("HIT");
                 }
@@ -50,6 +54,8 @@ public class characterControllerScr : MonoBehaviour
                 {
                     animator.SetBool("hitting1", false);
                     Debug.Log("NOT HIT");
+                    targetPosition = new Vector3(hit.point.x, transform.position.y, hit.point.z);
+                    transform.LookAt(targetPosition);
                 }
             }
         }
