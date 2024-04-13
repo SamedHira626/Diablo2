@@ -1,25 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.AI;
 
 public class MPC : MonoBehaviour
 {
-    /*[SerializeField] private GameObject destinationPoint;
-    private NavMeshAgent _agent;
-    // Start is called before the first frame update
-    void Start()
-    {
-        _agent=GetComponent<NavMeshAgent>();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        _agent.SetDestination(destinationPoint.transform.position);
-    }
-    */
-
     public NavMeshAgent _agent;
     [SerializeField] Transform _player;
     public LayerMask ground, player;
@@ -38,6 +24,10 @@ public class MPC : MonoBehaviour
     public int isDeadCheck;
     public const int HALF_DEAD = 1;
     public const int FULLY_DEAD = 2;
+
+    public Image healthBar;
+    public float healthAmount = 100f;
+    public static int lifeCount = 0;
 
     private void Awake()
     {
@@ -118,9 +108,11 @@ public class MPC : MonoBehaviour
 
             if (HALF_DEAD == _player.GetComponent<CharacterControllerScr>().isDead)
             {   
-                Debug.Log("first hit");
+                Debug.Log("first hit");     
                 StartCoroutine(ResetHitRoutine());
+                
             }
+
             else if (FULLY_DEAD == _player.GetComponent<CharacterControllerScr>().isDead)
             {
                 Debug.Log("Second hit");
@@ -166,12 +158,20 @@ public class MPC : MonoBehaviour
     {
         yield return new WaitForSeconds(1f);
         animator.SetBool("getHit", true);
+        takeDamage(50);
     }
     
     private IEnumerator ResetDyingRoutine()
     {
         yield return new WaitForSeconds(1.25f);
         animator.SetBool("isDying", true);
+        takeDamage(0);
+    }
+
+    public void takeDamage(float damageRatio)
+    {
+        healthAmount = damageRatio;
+        healthBar.fillAmount = healthAmount / 100f;
     }
 
 }

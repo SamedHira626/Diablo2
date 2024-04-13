@@ -358,6 +358,7 @@
 -analyzer:"C:/Program Files/Unity/Hub/Editor/2022.3.24f1/Editor/Data/Tools/Unity.SourceGenerators/Unity.SourceGenerators.dll"
 "Assets/characterControllerScr.cs"
 "Assets/followCam.cs"
+"Assets/HealthManager.cs"
 "Assets/MPC.cs"
 -langversion:9.0
 
