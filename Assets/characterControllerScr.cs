@@ -12,7 +12,8 @@ public class CharacterControllerScr : MonoBehaviour
     private bool isMoving;
     public Transform enemy;
     public float attackRange = 1.0f;
-    public bool isDead;
+    public int isDead;
+    public const int FULLY_DEAD = 2;
 
     void Awake()
     {
@@ -32,14 +33,14 @@ public class CharacterControllerScr : MonoBehaviour
                 destination = new Vector3(hit.point.x, transform.position.y, hit.point.z); // Y ekseni pozisyonunu koru
                 isMoving = true;
                 if (hit.transform == enemy && Vector3.Distance(transform.position, enemy.position) <= attackRange)
-                    {   Debug.Log("hit");
-                        // Vurma animasyonunu oynat
-                        animator.SetBool("hitting1",true);
-                        isDead=true;
-                        ResetHitting();
-                        
-
-                    }
+                {   
+                    Debug.Log("hit");
+                    animator.SetBool("hitting1",true);
+                    transform.LookAt(enemy);
+                    isMoving = false;
+                    isDead++;
+                    ResetHitting();                 
+                }
             }
         }
 

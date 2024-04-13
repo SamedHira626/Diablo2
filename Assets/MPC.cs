@@ -35,8 +35,9 @@ public class MPC : MonoBehaviour
 
     public float sightRange, attackRange;
     public bool playerInSightRange;
-    public bool isDeadCheck;
-
+    public int isDeadCheck;
+    public const int HALF_DEAD = 1;
+    public const int FULLY_DEAD = 2;
 
     private void Awake()
     {
@@ -50,7 +51,6 @@ public class MPC : MonoBehaviour
     {
         playerInSightRange = Physics.CheckSphere(transform.position, sightRange, player);
 
-
         animator.SetBool("isClosing", false);
 
         if (!playerInSightRange)
@@ -61,15 +61,11 @@ public class MPC : MonoBehaviour
         if (playerInSightRange)
         {
             Chase();
-
-
         }
 
+        CheckDying();
     }
-    public void CheckRequirements()
-    {   
-        //isRotationChange=RotationChange;
-    }
+
     void Patroling()
     {
         if (!destinationPointSet)
@@ -80,14 +76,12 @@ public class MPC : MonoBehaviour
         if (destinationPointSet)
         {
            _agent.SetDestination(destinationPoint);
-           //Debug.Log("Walking towards destination");
         }
 
         Vector3 distanceToDestinationPoint = transform.position - destinationPoint;
-        //Debug.Log("uzakta kaldı  "+distanceToDestinationPoint.magnitude);
+        
         if (distanceToDestinationPoint.magnitude < 3.0f)
         {   
-            //Debug.Log("uzakta kaldı"+distanceToDestinationPoint.magnitude);
            destinationPointSet = false;
         }
     }
@@ -101,11 +95,13 @@ public class MPC : MonoBehaviour
 
         // Use Raycast to check if the destination point is above the ground
         RaycastHit hit;
+
         if (Physics.Raycast(destinationPoint, -transform.up, out hit, 1.0f, ground))
         {
            //Debug.Log("Destination point set false because it's not above the ground. Hit object name: " + hit.collider.gameObject.name);
            destinationPointSet = false;
         }
+
         else
         {
            destinationPointSet = true;
@@ -114,24 +110,38 @@ public class MPC : MonoBehaviour
 
     void Chase()
     {
-
-        transform.LookAt(_player);
+        
 
         if (CheckPraying())
         {
             animator.SetBool("isClosing", true);
-            if(isDeadCheck=_player.GetComponent<CharacterControllerScr>().isDead)
-            {   Debug.Log("öldü");
-                animator.SetBool("isHit",true);
+            transform.LookAt(_player);
 
+            if (HALF_DEAD == _player.GetComponent<CharacterControllerScr>().isDead)
+            {   
+                Debug.Log("first hit");
+                animator.SetBool("getHit",true);
             }
-            
+            else if (FULLY_DEAD == _player.GetComponent<CharacterControllerScr>().isDead)
+            {
+                Debug.Log("Second hit");
+                animator.SetBool("isDying", true);
+            }
         }
+
         else
         {
-             _agent.SetDestination(_player.position);
+            //transform.LookAt(_player);
+             _agent.SetDestination(_player.position);    
         }
+    }
 
+    void CheckDying()
+    {
+        if (FULLY_DEAD == _player.GetComponent<CharacterControllerScr>().isDead)
+        {
+            StartCoroutine(ResetHittingRoutine());          
+        }           
     }
 
     bool CheckPraying()
@@ -143,8 +153,10 @@ public class MPC : MonoBehaviour
         {
             return true;
         }
+
         return false;
     }
+
     public void Respawn()
     {
         StartCoroutine(ResetHittingRoutine());
@@ -152,8 +164,8 @@ public class MPC : MonoBehaviour
 
     private IEnumerator ResetHittingRoutine()
     {
-        yield return new WaitForSeconds(1.5f);
-        
+        yield return new WaitForSeconds(4f);
+        Destroy(this.gameObject);
     }
 
 }
