@@ -44,6 +44,27 @@ public class CharacterControllerScr : MonoBehaviour
             }
         }
 
+        if (Input.GetMouseButtonDown(1))
+        {
+            Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+
+            if (Physics.Raycast(ray, out hit, 100, clickableLayer))
+            {
+                destination = new Vector3(hit.point.x, transform.position.y, hit.point.z); // Y ekseni pozisyonunu koru
+                isMoving = true;
+                if (hit.transform == enemy && Vector3.Distance(transform.position, enemy.position) <= attackRange)
+                {
+                    Debug.Log("hit");
+                    animator.SetBool("hitting2", true);
+                    transform.LookAt(enemy);
+                    isMoving = false;
+                    isDead = 2;
+                    ResetHitting();
+                }
+            }
+        }
+
         if (isMoving && Vector3.Distance(transform.position, destination) > 0.1f)
         {
             MovePlayer();
@@ -77,6 +98,7 @@ public class CharacterControllerScr : MonoBehaviour
     {
         yield return new WaitForSeconds(1.2f);
         animator.SetBool("hitting1", false);
+        animator.SetBool("hitting2", false);
     }
 
 }

@@ -33,7 +33,7 @@ public class MPC : MonoBehaviour
     public GameObject sphere;
     public Animator animator;
 
-    public float sightRange, attackRange;
+    public float sightRange;
     public bool playerInSightRange;
     public int isDeadCheck;
     public const int HALF_DEAD = 1;
@@ -109,23 +109,22 @@ public class MPC : MonoBehaviour
     }
 
     void Chase()
-    {
-        
-
+    {      
         if (CheckPraying())
         {
+            Debug.Log("praying");
             animator.SetBool("isClosing", true);
             transform.LookAt(_player);
 
             if (HALF_DEAD == _player.GetComponent<CharacterControllerScr>().isDead)
             {   
                 Debug.Log("first hit");
-                animator.SetBool("getHit",true);
+                StartCoroutine(ResetHitRoutine());
             }
             else if (FULLY_DEAD == _player.GetComponent<CharacterControllerScr>().isDead)
             {
                 Debug.Log("Second hit");
-                animator.SetBool("isDying", true);
+                StartCoroutine(ResetDyingRoutine());
             }
         }
 
@@ -140,7 +139,7 @@ public class MPC : MonoBehaviour
     {
         if (FULLY_DEAD == _player.GetComponent<CharacterControllerScr>().isDead)
         {
-            StartCoroutine(ResetHittingRoutine());          
+            StartCoroutine(ResetDestroyingRoutine());          
         }           
     }
 
@@ -157,15 +156,22 @@ public class MPC : MonoBehaviour
         return false;
     }
 
-    public void Respawn()
-    {
-        StartCoroutine(ResetHittingRoutine());
-    }
-
-    private IEnumerator ResetHittingRoutine()
+    private IEnumerator ResetDestroyingRoutine()
     {
         yield return new WaitForSeconds(4f);
         Destroy(this.gameObject);
+    }
+
+    private IEnumerator ResetHitRoutine()
+    {
+        yield return new WaitForSeconds(1f);
+        animator.SetBool("getHit", true);
+    }
+    
+    private IEnumerator ResetDyingRoutine()
+    {
+        yield return new WaitForSeconds(1.25f);
+        animator.SetBool("isDying", true);
     }
 
 }
