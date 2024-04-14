@@ -360,6 +360,7 @@
 "Assets/followCam.cs"
 "Assets/HealthManager.cs"
 "Assets/MPC.cs"
+"Assets/RotateToCam.cs"
 -langversion:9.0
 
 /deterministic
